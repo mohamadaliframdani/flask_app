@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <title>Hasil Analisis</title>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(to right, #f9f9f9, #e6e6e6);
+            text-align: center;
+            padding: 50px;
+            position: relative;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 24px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: linear-gradient(135deg, #007BFF, #004494);
+            color: white;
+        }
+
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #ddd; }
+
+        .copy-btn {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            background: #007BFF;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .copy-btn:hover { background: #0056b3; }
+
+        /* Elemen textarea tersembunyi untuk clipboard */
+        #hidden-textarea {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tombol Copy -->
+    <button class="copy-btn" onclick="copySummary()">📋 Copy Summary</button>
+    
+    <p>File: {{ filename }}</p>
+    <h2>Summary Error PGN Mobile</h2>
+    <p><strong>Tanggal:</strong> {{ current_date }}</p>
+
+    <!-- Elemen tersembunyi untuk menyimpan data -->
+    <pre id="summary-text" style="display:none;">
+Summary Error PGN Mobile {{ current_date }}
+
+Top 10 Log Occurrence
+
+Total     | Transaction
+===========================================================
+{% for transaction, count in top_errors %}
+{{ loop.index }}    {{ count }}   | "{{ transaction }}"
+{% endfor %}
+-----------------------------------------------------------
+{{ total_displayed_errors }} Total Error
+    </pre>
+
+    <table>
+        <thead>
+            <tr><th>#</th><th>Total</th><th>Transaction</th></tr>
+        </thead>
+        <tbody>
+            {% for transaction, count in top_errors %}
+            <tr><td>{{ loop.index }}</td><td>{{ count }}</td><td>{{ transaction }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><strong>Total Errors:</strong> {{ total_displayed_errors }}</p>
+
+    <!-- Script Copy -->
+    <script>
+        async function copySummary() {
+            try {
+                let text = document.getElementById("summary-text").textContent.trim();
+                await navigator.clipboard.writeText(text);
+                alert("✅ Hasil analisis berhasil disalin!");
+            } catch (error) {
+                console.error("Error saat menyalin:", error);
+
+                // Metode cadangan: gunakan textarea jika Clipboard API gagal
+                let textArea = document.createElement("textarea");
+                textArea.style.position = "fixed";
+                textArea.style.opacity = "0";
+                textArea.value = document.getElementById("summary-text").textContent.trim();
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+
+                alert("✅ Hasil analisis berhasil disalin (metode cadangan)!");
+            }
+        }
+    </script>
+</body>
+</html>
